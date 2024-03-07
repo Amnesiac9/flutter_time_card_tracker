@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:time_card_tracker/database.dart';
 import 'package:time_card_tracker/settings_page.dart';
 import 'package:time_card_tracker/time_entry.dart';
@@ -81,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   var _entries = <Widget>[];
   DatabaseHelper dbHelper = DatabaseHelper();
+  final dateFormat = DateFormat('yyyy-MM-dd hh:mma');
 
   void _getEntriesAsync() async {
     List<TimeEntry> dbEntries = await dbHelper.getEntries();
@@ -117,19 +119,131 @@ class _MyHomePageState extends State<MyHomePage> {
           );
   }
 
-  void _appendEntry() {
-    TimeEntry entry = TimeEntry.fromUser(
-      startDate: DateTime.now(),
-      endDate: DateTime.now().add(const Duration(hours: 8)),
-      note: 'Entry ${_counter + 1}',
-      hourlyRate: 15.0, // Need to get this from user settings
+  void _createNewEntry() async {
+    DateTime startDate = DateTime.now();
+    DateTime endDate = DateTime.now().add(const Duration(hours: 8));
+    String note = "";
+    bool save = false;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('New Timecard Entry'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextField(
+                    onChanged: (value) {
+                      note = value;
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Note',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: startDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.fromDateTime(startDate),
+                        );
+                        if (time != null) {
+                          startDate = DateTime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            time.hour,
+                            time.minute,
+                          );
+                          setState(() {}); // This will rebuild the AlertDialog
+                        }
+                      }
+                    },
+                    child: Text('Start: ${dateFormat.format(startDate)}'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: endDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.fromDateTime(endDate),
+                        );
+                        if (time != null) {
+                          endDate = DateTime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            time.hour,
+                            time.minute,
+                          );
+                          setState(() {}); // This will rebuild the AlertDialog
+                        }
+                      }
+                    },
+                    child: Text('End: ${dateFormat.format(endDate)}'),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    save = true;
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
+
+    if (save == true) {
+      TimeEntry entry = TimeEntry.fromUser(
+        startDate: startDate,
+        endDate: endDate,
+        note: note,
+        hourlyRate: 15.0, // Need to get this from user settings
+      );
+
+      appendEntry(entry);
+    }
+  }
+
+  void appendEntry(entry) {
+    // TimeEntry entry = TimeEntry.fromUser(
+    //   startDate: DateTime.now(),
+    //   endDate: DateTime.now().add(const Duration(hours: 8)),
+    //   note: 'Entry ${_counter + 1}',
+    //   hourlyRate: 15.0, // Need to get this from user settings
+    // );
 
     dbHelper.saveEntry(entry);
     _getEntriesAsync();
     setState(() {
       _counter++;
-      //_entries = List.from(_entries);
     });
   }
 
@@ -184,6 +298,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: <Widget>[
           IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: () => print('Filter'),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               //Navigate to settings page
@@ -195,11 +313,27 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: Center(
-        child: _getEntries(),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(
+              top: 5,
+              bottom: 0,
+            ),
+            child: Text(
+              "Filter: Pay Period",
+              style: TextStyle(fontSize: 10),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: _getEntries(),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _appendEntry,
+        onPressed: _createNewEntry,
         tooltip: 'Add Entry',
         child: const Icon(Icons.alarm_add_rounded),
       ),
