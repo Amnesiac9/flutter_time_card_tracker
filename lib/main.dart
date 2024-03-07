@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:time_card_tracker/database.dart';
+import 'package:time_card_tracker/settings_page.dart';
 import 'package:time_card_tracker/time_entry.dart';
 import 'package:time_card_tracker/time_entry_widget.dart';
 
@@ -181,6 +182,18 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              //Navigate to settings page
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Center(
         child: _getEntries(),
