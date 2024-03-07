@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:time_card_tracker/database.dart';
+import 'package:time_card_tracker/time_entry.dart';
+import 'package:time_card_tracker/time_entry_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -76,43 +79,71 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   var _entries = <Widget>[];
+  DatabaseHelper dbHelper = DatabaseHelper();
+
+  void _getEntriesAsync() async {
+    List<TimeEntry> dbEntries = await dbHelper.getEntries();
+    setState(() {
+      _entries = dbEntries
+          .map((entry) => GestureDetector(
+              onLongPress: () {
+                _showPopupMenu(entry.id!);
+              },
+              child: Dismissible(
+                  key: Key('${entry.id}'),
+                  onDismissed: (direction) {
+                    _deleteEntry(entry.id!);
+                  },
+                  child: EntryWidget(
+                    startDate: entry.startDate,
+                    endDate: entry.endDate,
+                    hours: entry.hours,
+                    wages: entry.wages,
+                    note: entry.note,
+                  ))))
+          .toList();
+      _counter = _entries.length;
+    });
+  }
+
+  Widget _getEntries() {
+    return _entries.isEmpty
+        ? const Text('No entries yet')
+        : ListView.builder(
+            padding: const EdgeInsets.all(10),
+            itemCount: _entries.length,
+            itemBuilder: (context, index) => _entries[index],
+          );
+  }
 
   void _appendEntry() {
+    TimeEntry entry = TimeEntry.fromUser(
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(const Duration(hours: 8)),
+      note: 'Entry ${_counter + 1}',
+      hourlyRate: 15.0, // Need to get this from user settings
+    );
+
+    dbHelper.saveEntry(entry);
+    _getEntriesAsync();
     setState(() {
       _counter++;
-      _entries = List.from(_entries)
-        ..add(
-          GestureDetector(
-            onLongPress: () {
-              _showPopupMenu(_counter - 1);
-            },
-            child: Dismissible(
-              key: Key('Entry $_counter'),
-              onDismissed: (direction) {
-                setState(() {
-                  _entries.removeWhere(
-                      (element) => element.key == Key('Entry $_counter'));
-                });
-              },
-              child: Card(
-                child: SizedBox(
-                  height: 60,
-                  child: Center(child: Text('Entry $_counter')),
-                ),
-              ),
-            ),
-          ),
-        );
+      //_entries = List.from(_entries);
     });
   }
 
-  void _deleteEntry(int index) {
+  void _deleteEntry(int id) {
+    dbHelper.deleteEntry(id); // Delete from database
     setState(() {
-      _entries.removeAt(index); // Remove the entry at the given index
+      // _entries.removeWhere((element) =>
+      //     element.key ==
+      //     Key(id.toString())); // Remove the entry at the given index
+      _counter--;
     });
+    _getEntriesAsync();
   }
 
-  void _showPopupMenu(int index) {
+  void _showPopupMenu(int id) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -125,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 leading: const Icon(Icons.delete),
                 title: const Text('Delete'),
                 onTap: () {
-                  _deleteEntry(index);
+                  _deleteEntry(id);
                   Navigator.of(context).pop(); // Close the dialog
                 },
               ),
@@ -137,6 +168,13 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Run once when the widget is first created
+  @override
+  void initState() {
+    super.initState();
+    _getEntriesAsync();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,28 +183,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: _entries.isEmpty
-            ? const Text('No entries yet')
-            : ListView.builder(
-                padding: const EdgeInsets.all(10),
-                itemCount: _entries.length,
-                itemBuilder: (context, index) => GestureDetector(
-                  onLongPress: () {
-                    _showPopupMenu(index);
-                  },
-                  child: Card(
-                    child: SizedBox(
-                      height: 60,
-                      child: Center(child: Text('Entry ${index + 1}')),
-                    ),
-                  ),
-                ),
-              ),
+        child: _getEntries(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _appendEntry,
         tooltip: 'Add Entry',
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.alarm_add_rounded),
       ),
     );
   }
