@@ -8,7 +8,6 @@ class CustomTimePickerDialog {
     required String title,
     required DateTime startDate,
     required DateTime endDate,
-    required String note,
     required TimeEntry entry,
     required Function(TimeEntry) onSave,
     required DateFormat dateFormat,
@@ -29,7 +28,7 @@ class CustomTimePickerDialog {
                 children: <Widget>[
                   TextField(
                     onChanged: (value) {
-                      note = value;
+                      entry.note = value;
                     },
                     decoration: const InputDecoration(
                       hintText: 'Note',
@@ -102,7 +101,7 @@ class CustomTimePickerDialog {
                   onPressed: () {
                     entry.startDate = startDate;
                     entry.endDate = endDate;
-                    entry.note = note;
+                    //entry.note = note;
                     onSave(entry);
                     Navigator.of(context).pop();
                   },

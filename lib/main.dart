@@ -121,23 +121,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _createNewEntry() async {
-    DateTime startDate = DateTime.now();
-    DateTime endDate = DateTime.now().add(const Duration(hours: 8));
-    String note = "";
-
-    TimeEntry entry = TimeEntry.fromUser(
-      startDate: startDate,
-      endDate: endDate,
-      note: note,
-      hourlyRate: 20.00, // TODO: Get from settings
-    );
-
     CustomTimePickerDialog.show(
       context: context,
       title: 'New Timecard Entry',
       startDate: DateTime.now(),
       endDate: DateTime.now().add(const Duration(hours: 8)),
-      note: '',
       entry: TimeEntry.fromUser(
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(hours: 8)),
