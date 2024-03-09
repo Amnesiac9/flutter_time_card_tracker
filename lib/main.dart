@@ -4,6 +4,7 @@ import 'package:time_card_tracker/database.dart';
 import 'package:time_card_tracker/settings_page.dart';
 import 'package:time_card_tracker/time_entry.dart';
 import 'package:time_card_tracker/time_entry_widget.dart';
+import 'package:time_card_tracker/time_picker_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -123,123 +124,34 @@ class _MyHomePageState extends State<MyHomePage> {
     DateTime startDate = DateTime.now();
     DateTime endDate = DateTime.now().add(const Duration(hours: 8));
     String note = "";
-    bool save = false;
 
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: const Text('New Timecard Entry'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextField(
-                    onChanged: (value) {
-                      note = value;
-                    },
-                    decoration: const InputDecoration(
-                      hintText: 'Note',
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: startDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (date != null) {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.fromDateTime(startDate),
-                        );
-                        if (time != null) {
-                          startDate = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            time.hour,
-                            time.minute,
-                          );
-                          setState(() {}); // This will rebuild the AlertDialog
-                        }
-                      }
-                    },
-                    child: Text('Start: ${dateFormat.format(startDate)}'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: endDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (date != null) {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.fromDateTime(endDate),
-                        );
-                        if (time != null) {
-                          endDate = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            time.hour,
-                            time.minute,
-                          );
-                          setState(() {}); // This will rebuild the AlertDialog
-                        }
-                      }
-                    },
-                    child: Text('End: ${dateFormat.format(endDate)}'),
-                  ),
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    save = true;
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Save'),
-                ),
-              ],
-            );
-          },
-        );
-      },
+    TimeEntry entry = TimeEntry.fromUser(
+      startDate: startDate,
+      endDate: endDate,
+      note: note,
+      hourlyRate: 20.00, // TODO: Get from settings
     );
 
-    if (save == true) {
-      TimeEntry entry = TimeEntry.fromUser(
-        startDate: startDate,
-        endDate: endDate,
-        note: note,
-        hourlyRate: 15.0, // Need to get this from user settings
-      );
-
-      appendEntry(entry);
-    }
+    CustomTimePickerDialog.show(
+      context: context,
+      title: 'New Timecard Entry',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(const Duration(hours: 8)),
+      note: '',
+      entry: TimeEntry.fromUser(
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(const Duration(hours: 8)),
+        note: '',
+        hourlyRate: 20.00, // TODO: Get from settings
+      ),
+      onSave: (entry) {
+        appendEntry(entry);
+      },
+      dateFormat: dateFormat,
+    );
   }
 
   void appendEntry(entry) {
-    // TimeEntry entry = TimeEntry.fromUser(
-    //   startDate: DateTime.now(),
-    //   endDate: DateTime.now().add(const Duration(hours: 8)),
-    //   note: 'Entry ${_counter + 1}',
-    //   hourlyRate: 15.0, // Need to get this from user settings
-    // );
-
     dbHelper.saveEntry(entry);
     _getEntriesAsync();
     setState(() {
@@ -250,12 +162,21 @@ class _MyHomePageState extends State<MyHomePage> {
   void _deleteEntry(int id) {
     dbHelper.deleteEntry(id); // Delete from database
     setState(() {
-      // _entries.removeWhere((element) =>
-      //     element.key ==
-      //     Key(id.toString())); // Remove the entry at the given index
       _counter--;
     });
     _getEntriesAsync();
+  }
+
+  void _editEntry(int id) {
+    // Navigate to edit page
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => EditEntryPage(
+    //       entryId: id,
+    //     ),
+    //   ),
+    // );
   }
 
   void _showPopupMenu(int id) {

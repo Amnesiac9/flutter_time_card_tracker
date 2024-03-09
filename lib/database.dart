@@ -31,6 +31,8 @@ class DatabaseHelper {
   void _onCreate(Database db, int version) async {
     await db.execute(
         'CREATE TABLE Entry(id INTEGER PRIMARY KEY, startDate TEXT, endDate TEXT, hours REAL, wages REAL, note TEXT)');
+    await db.execute(
+        'CREATE TABLE Settings(id INTEGER PRIMARY KEY, hourlyRate REAL, currency TEXT, taxRate REAL, hoursFormat TEXT, dateFormat TEXT, theme TEXT, language TEXT, reminders INTEGER, reminderTime TEXT, lastBackup TEXT, dailyBackupTime TEXT, filter TEXT)');
   }
 
   Future<int> saveEntry(TimeEntry entry) async {
@@ -57,9 +59,45 @@ class DatabaseHelper {
     return entries;
   }
 
+  getEntry(int id) async {
+    var dbClient = await db;
+    var res = await dbClient.rawQuery('SELECT * FROM Entry WHERE id = ?', [id]);
+    if (res.isEmpty) return null;
+    return TimeEntry.fromMap(res.first);
+  }
+
   Future<int> deleteEntry(int id) async {
     var dbClient = await db;
     int res = await dbClient.rawDelete('DELETE FROM Entry WHERE id = ?', [id]);
     return res;
+  }
+
+  Future<int> updateEntry(TimeEntry entry) async {
+    var dbClient = await db;
+    int res = await dbClient.update("Entry", entry.toMap(),
+        where: "id = ?", whereArgs: <int>[entry.id!]);
+    return res;
+  }
+
+  Future close() async {
+    var dbClient = await db;
+    dbClient.close();
+  }
+
+  Future<int> saveSettings(Map<String, dynamic> settings) async {
+    var dbClient = await db;
+    int res = await dbClient.insert("Settings", settings);
+    return res;
+  }
+
+  Future<Map<String, dynamic>> getSettings() async {
+    var dbClient = await db;
+    List<Map> list = await dbClient.rawQuery('SELECT * FROM Settings');
+
+    if (list.isNotEmpty) {
+      return list.first.cast<String, dynamic>();
+    } else {
+      return {};
+    }
   }
 }
