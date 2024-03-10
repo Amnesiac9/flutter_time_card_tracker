@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io' as io;
@@ -11,6 +13,7 @@ class DatabaseHelper {
   factory DatabaseHelper() => _instance;
   static Database? _db;
 
+  //
   Future<Database> get db async {
     if (_db != null) {
       return _db!;
@@ -19,8 +22,10 @@ class DatabaseHelper {
     return _db!;
   }
 
+  // Ensure only one instance of the database is created (singleton pattern)
   DatabaseHelper.internal();
 
+  // initialize the database
   setDB() async {
     io.Directory documentDirectory = await getApplicationDocumentsDirectory();
     String path = p.join(documentDirectory.path, 'main.db');
@@ -32,7 +37,8 @@ class DatabaseHelper {
     await db.execute(
         'CREATE TABLE Entry(id INTEGER PRIMARY KEY, startDate TEXT, endDate TEXT, hours REAL, wages REAL, note TEXT)');
     await db.execute(
-        'CREATE TABLE Settings(id INTEGER PRIMARY KEY, hourlyRate REAL, currency TEXT, taxRate REAL, hoursFormat TEXT, dateFormat TEXT, theme TEXT, language TEXT, reminders INTEGER, reminderTime TEXT, lastBackup TEXT, dailyBackupTime TEXT, filter TEXT)');
+        'CREATE TABLE Settings(id INTEGER PRIMARY KEY, theme TEXT, language TEXT, isDark INTEGER, currency TEXT, hourlyRate REAL, taxRate REAL, hoursFormat TEXT, dateFormat TEXT, reminders INTEGER, reminderTime TEXT, lastBackup TEXT, dailyBackupTime TEXT, filter TEXT)');
+    print('Database was created!');
   }
 
   Future<int> saveEntry(TimeEntry entry) async {
@@ -98,6 +104,34 @@ class DatabaseHelper {
       return list.first.cast<String, dynamic>();
     } else {
       return {};
+    }
+  }
+
+  //Only used for testing and resetting the db
+  Future<void> deleteDatabaseFile() async {
+    try {
+      // Get the directory where the database file is located
+      Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      String path = documentsDirectory.path;
+
+      // Specify the name of your database file
+      String databaseFileName = 'main.db';
+
+      // Construct the full path to the database file
+      String databaseFilePath = '$path/$databaseFileName';
+
+      // Check if the database file exists
+      bool exists = await File(databaseFilePath).exists();
+
+      if (exists) {
+        // Delete the database file
+        await File(databaseFilePath).delete();
+        print('Database file deleted successfully.');
+      } else {
+        print('Database file does not exist.');
+      }
+    } catch (e) {
+      print('Error deleting database file: $e');
     }
   }
 }

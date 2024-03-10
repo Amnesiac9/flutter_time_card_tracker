@@ -15,7 +15,6 @@ class CustomTimePickerDialog {
     // DateTime startDate0 = startDate;
     // DateTime endDate0 = endDate;
     // String note0 = note;
-
     await showDialog(
       context: context,
       builder: (BuildContext context) {

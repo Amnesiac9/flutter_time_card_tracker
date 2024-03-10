@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:time_card_tracker/database.dart';
+import 'package:time_card_tracker/settings.dart';
 import 'package:time_card_tracker/settings_page.dart';
 import 'package:time_card_tracker/time_entry.dart';
 import 'package:time_card_tracker/time_entry_widget.dart';
@@ -16,12 +17,30 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    const myTheme = ColorScheme.dark(primaryContainer: Colors.red);
+    DatabaseHelper dbHelper = DatabaseHelper();
+    //dbHelper.deleteDatabaseFile(); // Delete the database file
+    UserSettings.getSettingsFromDatabase(dbHelper);
 
-    var myTheme2 = ColorScheme.fromSeed(
-      seedColor: const Color.fromARGB(255, 29, 107, 95),
-      brightness: Brightness.dark,
-      background: Colors.black,
+    // ignore: prefer_const_constructors
+    Color seedColor = Color.fromARGB(255, 29, 107, 95);
+    Brightness brightness = Brightness.dark;
+    Color background = Colors.black;
+
+    if (UserSettings.theme != 'default') {
+      seedColor = Color(int.parse(UserSettings.theme));
+    }
+
+    // Check if the user has selected a light theme
+    if (UserSettings.isDark == 0) {
+      brightness = Brightness.light;
+      background = Colors.white;
+    }
+
+// Construct the theme
+    var myTheme = ColorScheme.fromSeed(
+      seedColor: seedColor,
+      brightness: brightness,
+      background: background,
       // tertiary: Colors.black,
       // tertiaryContainer: Colors.black,
       // onTertiaryContainer: Colors.black,
@@ -53,7 +72,7 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: myTheme2,
+        colorScheme: myTheme,
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Time Tracker'),
@@ -80,9 +99,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  DatabaseHelper dbHelper = DatabaseHelper();
   int _counter = 0;
   var _entries = <Widget>[];
-  DatabaseHelper dbHelper = DatabaseHelper();
+
   final dateFormat = DateFormat('yyyy-MM-dd hh:mma');
 
   void _getEntriesAsync() async {
@@ -130,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(hours: 8)),
         note: '',
-        hourlyRate: 20.00, // TODO: Get from settings
+        hourlyRate: UserSettings.hourlyRate,
       ),
       onSave: (entry) {
         appendEntry(entry);
