@@ -56,4 +56,20 @@ class TimeEntry {
   void setEntryId(int id) {
     _id = id;
   }
+
+  // Generate a list of TimeEntry objects from a map
+  // TimeEntry.entriesFromList(List<Map> list) {
+  //   List<TimeEntry> entries = [];
+  //   for (int i = 0; i < list.length; i++) {
+  //     var entry = TimeEntry(
+  //       startDate: DateTime.parse(list[i]["startDate"]),
+  //       endDate: DateTime.parse(list[i]["endDate"]),
+  //       hours: list[i]["hours"],
+  //       wages: list[i]["wages"],
+  //       note: list[i]["note"],
+  //     );
+  //     entry.setEntryId(list[i]["id"]);
+  //     entries.add(entry);
+  //   }
+  // }
 }
