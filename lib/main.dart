@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   var _entries = <Widget>[];
 
-  final dateFormat = DateFormat('yyyy-MM-dd hh:mma');
+  //final dateFormat = DateFormat('yyyy-MM-dd hh:mma');
 
   void _getEntriesAsync() async {
     List<TimeEntry> dbEntries = await dbHelper.getEntries();
@@ -155,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onSave: (entry) {
         appendEntry(entry);
       },
-      dateFormat: dateFormat,
+      dateFormat: DateFormat(UserSettings.dateFormat),
     );
   }
 
