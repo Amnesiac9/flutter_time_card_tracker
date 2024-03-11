@@ -15,7 +15,7 @@ class UserSettings {
   static String reminderTime = '17:00';
   static String lastBackup = '';
   static String dailyBackupTime = '00:00';
-  static String filter = 'PayPeroid';
+  static String filter = 'PayPeriod';
 
   // Function to get settings from the database
   static Future<void> getSettingsFromDatabase(DatabaseHelper database) async {
@@ -38,6 +38,18 @@ class UserSettings {
       lastBackup = settings['lastBackup'];
       dailyBackupTime = settings['dailyBackupTime'];
       filter = settings['filter'];
+    }
+  }
+
+  // Function to get the currency symbol
+  static String getCurrencySymbol() {
+    switch (currency) {
+      case 'EUR':
+        return '€';
+      case 'GBP':
+        return '£';
+      default:
+        return '\$';
     }
   }
 }
