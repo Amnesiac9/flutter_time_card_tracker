@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:time_card_tracker/database.dart';
-import 'package:time_card_tracker/settings.dart';
+import 'package:time_card_tracker/settings_change_notifier.dart';
 import 'package:time_card_tracker/settings_page.dart';
 import 'package:time_card_tracker/time_entry.dart';
 import 'package:time_card_tracker/time_entry_widget.dart';
@@ -27,6 +27,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   DatabaseHelper dbHelper = DatabaseHelper();
+  UserSettings2 userSettings = UserSettings2();
   int _counter = 0;
   var _entries = <Widget>[];
 
@@ -77,12 +78,12 @@ class _MyHomePageState extends State<MyHomePage> {
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(hours: 8)),
         note: '',
-        hourlyRate: UserSettings.hourlyRate,
+        hourlyRate: userSettings.hourlyRate,
       ),
       onSave: (entry) {
         appendEntry(entry);
       },
-      dateFormat: DateFormat(UserSettings.dateFormat),
+      dateFormat: DateFormat(userSettings.dateFormat),
     );
   }
 

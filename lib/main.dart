@@ -1,11 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:time_card_tracker/database.dart';
 import 'package:time_card_tracker/home_page.dart';
-import 'package:time_card_tracker/settings.dart';
+import 'package:provider/provider.dart';
+import 'package:time_card_tracker/settings_change_notifier.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  //final database = DatabaseHelper();
+  final userSettings = UserSettings2();
+  await userSettings.getSettingsFromDatabase();
+
+  runApp(
+    ChangeNotifierProvider<UserSettings2>.value(
+      value: userSettings,
+      child: const MyApp(),
+    ),
+  );
 }
+
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   runApp(FutureBuilder<UserSettings2>(
+//     // Initialize UserSettings2 and load the settings
+//     future: () async {
+//       final database = DatabaseHelper();
+//       final userSettings = UserSettings2(database);
+//       await userSettings.getSettingsFromDatabase(database);
+//       return userSettings;
+//     }(),
+//     builder: (context, snapshot) {
+//       if (snapshot.connectionState == ConnectionState.done) {
+//         // Settings have been loaded
+//         if (snapshot.data != null) {
+//           // Provide UserSettings2 to the app
+//           return ChangeNotifierProvider<UserSettings2>.value(
+//             value: snapshot.data!,
+//             child: const MyApp(),
+//           );
+//         } else {
+//           // snapshot.data is null, show an error screen
+//           return const MaterialApp(
+//               home: Scaffold(
+//                   body: Center(child: Text('Error loading settings'))));
+//         }
+//       } else {
+//         // Settings are still loading, show a loading screen
+//         return const MaterialApp(
+//             home: Scaffold(body: Center(child: CircularProgressIndicator())));
+//       }
+//     },
+//   ));
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -14,23 +60,28 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DatabaseHelper dbHelper = DatabaseHelper();
+    UserSettings2 userSettings = UserSettings2();
     //dbHelper.deleteDatabaseFile(); // Delete the database file
-    UserSettings.getSettingsFromDatabase(dbHelper);
+    userSettings.getSettingsFromDatabase();
 
     // ignore: prefer_const_constructors
     Color seedColor = Color.fromARGB(255, 29, 107, 95);
     Brightness brightness = Brightness.dark;
     Color background = Colors.black;
 
-    if (UserSettings.theme != 'default') {
-      seedColor = Color(int.parse(UserSettings.theme));
+    if (userSettings.theme != 'default') {
+      seedColor = Color(int.parse(userSettings.theme));
     }
 
     // Check if the user has selected a light theme
-    if (UserSettings.isDark == 0) {
+    if (userSettings.isDark == 0) {
       brightness = Brightness.light;
       background = Colors.white;
     }
+
+    print('seedColor: $seedColor');
+    print('brightness: $brightness');
+    print('background: $background');
 
 // Construct the theme
     var myTheme = ColorScheme.fromSeed(

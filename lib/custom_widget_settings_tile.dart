@@ -6,7 +6,7 @@ enum SettingType {
   dropdown,
 }
 
-class CustomSettingsTile extends StatefulWidget {
+class CustomSettingsTile extends StatelessWidget {
   final Widget title;
   final IconData? leadingIcon;
   final Widget? trailing;
@@ -35,21 +35,8 @@ class CustomSettingsTile extends StatefulWidget {
   });
 
   @override
-  _CustomSettingsTileState createState() => _CustomSettingsTileState();
-}
-
-class _CustomSettingsTileState extends State<CustomSettingsTile> {
-  late bool _toggleValue;
-
-  @override
-  void initState() {
-    super.initState();
-    _toggleValue = widget.toggleValue;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    switch (widget.settingType) {
+    switch (settingType) {
       case SettingType.normal:
         return buildNormalTile();
       case SettingType.toggle:
@@ -61,29 +48,25 @@ class _CustomSettingsTileState extends State<CustomSettingsTile> {
 
   Widget buildNormalTile() {
     return Padding(
-      padding: widget.padding,
+      padding: padding,
       child: ListTile(
-        leading: widget.leadingIcon != null ? Icon(widget.leadingIcon) : null,
-        title: widget.title,
-        trailing: widget.trailing,
-        onTap: widget.onTap,
+        leading: leadingIcon != null ? Icon(leadingIcon) : null,
+        title: title,
+        trailing: trailing,
+        onTap: onTap,
       ),
     );
   }
 
   Widget buildToggleTile() {
     return Padding(
-      padding: widget.padding,
+      padding: padding,
       child: ListTile(
-        leading: widget.leadingIcon != null ? Icon(widget.leadingIcon) : null,
-        title: widget.title,
+        leading: leadingIcon != null ? Icon(leadingIcon) : null,
+        title: title,
         trailing: Switch(
-          value: _toggleValue,
-          onChanged: (newValue) {
-            setState(() {
-              _toggleValue = newValue;
-            });
-          },
+          value: toggleValue,
+          onChanged: onToggleChanged!,
         ),
       ),
     );
@@ -91,19 +74,19 @@ class _CustomSettingsTileState extends State<CustomSettingsTile> {
 
   Widget buildDropdownTile() {
     return Padding(
-      padding: widget.padding,
+      padding: padding,
       child: ListTile(
-        leading: widget.leadingIcon != null ? Icon(widget.leadingIcon) : null,
-        title: widget.title,
+        leading: leadingIcon != null ? Icon(leadingIcon) : null,
+        title: title,
         trailing: DropdownButton<String>(
-          value: widget.selectedDropdownOption,
-          items: widget.dropdownOptions!.map((String value) {
+          value: selectedDropdownOption,
+          items: dropdownOptions!.map((String value) {
             return DropdownMenuItem<String>(
               value: value,
               child: Text(value),
             );
           }).toList(),
-          onChanged: widget.onDropdownChanged,
+          onChanged: onDropdownChanged,
         ),
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:time_card_tracker/settings.dart';
+import 'package:time_card_tracker/settings_change_notifier.dart';
 
 class EntryWidget extends StatelessWidget {
   final DateTime startDate;
@@ -20,7 +20,8 @@ class EntryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat(UserSettings.dateFormat);
+    UserSettings2 userSettings = UserSettings2();
+    final dateFormat = DateFormat(userSettings.dateFormat);
 
     return Card(
       child: Padding(
@@ -76,7 +77,7 @@ class EntryWidget extends StatelessWidget {
                 children: <TextSpan>[
                   TextSpan(
                       text:
-                          '${UserSettings.getCurrencySymbol()}${wages.toStringAsFixed(2)}',
+                          '${userSettings.getCurrencySymbol()}${wages.toStringAsFixed(2)}',
                       style: const TextStyle(fontWeight: FontWeight.normal)),
                 ],
               ),
