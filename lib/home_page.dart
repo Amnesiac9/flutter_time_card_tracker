@@ -57,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Widget _getEntries() {
+  Widget _displayEntries() {
     return _entries.isEmpty
         ? const Text('No entries yet')
         : ListView.builder(
@@ -183,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Expanded(
             child: Center(
-              child: _getEntries(),
+              child: _displayEntries(),
             ),
           ),
         ],
@@ -191,6 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _createNewEntry,
         tooltip: 'Add Entry',
+        mouseCursor: MaterialStateMouseCursor.clickable,
         child: const Icon(Icons.alarm_add_rounded),
       ),
     );
