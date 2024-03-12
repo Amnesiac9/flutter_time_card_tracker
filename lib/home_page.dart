@@ -29,9 +29,18 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   DatabaseHelper dbHelper = DatabaseHelper();
   //UserSettings userSettings = Provider.of<UserSettings>(context);
-  UserSettings userSettings = UserSettings();
+  late UserSettings userSettings;
   int _counter = 0;
   var _entries = <Widget>[];
+
+  // Run once when the widget is first created
+  @override
+  void initState() {
+    super.initState();
+    userSettings = Provider.of<UserSettings>(context,
+        listen: false); // Get the UserSettings instance from Provider
+    _getEntriesAsync();
+  }
 
   //final dateFormat = DateFormat('yyyy-MM-dd hh:mma');
 
@@ -140,13 +149,6 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
-  }
-
-  // Run once when the widget is first created
-  @override
-  void initState() {
-    super.initState();
-    _getEntriesAsync();
   }
 
   @override

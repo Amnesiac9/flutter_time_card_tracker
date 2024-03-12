@@ -15,7 +15,9 @@ class UserSettings extends ChangeNotifier {
   String lastBackup = '';
   String dailyBackupTime = '00:00';
   String filter = 'PayPeriod';
-  final DatabaseHelper database = DatabaseHelper();
+  final DatabaseHelper database;
+
+  UserSettings({required this.database});
 
   // Function to get settings from the database
   Future<void> getSettingsFromDatabase() async {
@@ -151,5 +153,7 @@ class UserSettings extends ChangeNotifier {
       'dailyBackupTime': dailyBackupTime,
       'filter': filter,
     });
+    print('settings saved to database.');
+    print('isDark: $isDark');
   }
 }

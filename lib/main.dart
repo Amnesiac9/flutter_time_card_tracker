@@ -8,11 +8,13 @@ import 'package:time_card_tracker/user_settings.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  //final database = DatabaseHelper();
-  final userSettings = UserSettings();
+  final database = DatabaseHelper();
+  //database.deleteDatabaseFile(); // Delete the database file
+  final userSettings = UserSettings(database: database);
   await userSettings.getSettingsFromDatabase();
 
   runApp(
+    // ChangeNotifier is a provider that allows us to listen to changes in the UserSettings class, and then rebuild to update the UI when changes occur.
     ChangeNotifierProvider<UserSettings>.value(
       value: userSettings,
       child: const MyApp(),
@@ -28,8 +30,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     //DatabaseHelper dbHelper = DatabaseHelper();
     //UserSettings2 userSettings = UserSettings2();
-    //dbHelper.deleteDatabaseFile(); // Delete the database file
+
     //userSettings.getSettingsFromDatabase();
+
+    // Get the global user settings
     UserSettings userSettings = Provider.of<UserSettings>(context);
 
     // ignore: prefer_const_constructors

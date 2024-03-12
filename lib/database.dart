@@ -101,7 +101,17 @@ class DatabaseHelper {
 
   Future<int> saveSettings(Map<String, dynamic> settings) async {
     var dbClient = await db;
-    int res = await dbClient.insert("Settings", settings);
+    int res = await dbClient.update(
+      "Settings",
+      settings,
+      where: "id = ?",
+      whereArgs: [1], // Assuming the ID of your settings row is 1
+    );
+    if (res == 0) {
+      // If no row was updated, insert a new row
+      res = await dbClient.insert("Settings", settings);
+    }
+    print(res);
     return res;
   }
 
