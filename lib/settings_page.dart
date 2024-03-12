@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_card_tracker/custom_widget_settings_tile.dart';
-import 'package:time_card_tracker/settings_change_notifier.dart';
+import 'package:time_card_tracker/user_settings.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserSettings2>(builder: (context, userSettings, child) {
+    return Consumer<UserSettings>(builder: (context, userSettings, child) {
       print('userSettings ${userSettings.isDark}');
       return Scaffold(
         appBar: AppBar(

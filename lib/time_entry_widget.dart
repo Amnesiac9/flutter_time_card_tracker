@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:time_card_tracker/settings_change_notifier.dart';
+import 'package:time_card_tracker/user_settings.dart';
 
 class EntryWidget extends StatelessWidget {
   final DateTime startDate;
@@ -20,7 +20,7 @@ class EntryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserSettings2 userSettings = UserSettings2();
+    UserSettings userSettings = UserSettings();
     final dateFormat = DateFormat(userSettings.dateFormat);
 
     return Card(

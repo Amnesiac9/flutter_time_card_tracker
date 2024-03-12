@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:time_card_tracker/database.dart';
 
-class UserSettings2 extends ChangeNotifier {
+class UserSettings extends ChangeNotifier {
   String theme = 'default';
   String language = 'language';
   int isDark = 1;
